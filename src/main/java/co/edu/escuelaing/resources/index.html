@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Server</title>
+    <link rel="icon" href="image/WebServer.ico" type="image/x-icon">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container mt-5">
+        <!-- Image Section -->
+        <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+                <h1 class="text-center">Innovative Web Server Architectures</h1>
+                <p>Welcome to our platform. Here you can explore how we have implemented an innovative web server that delivers HTML pages, images, and dynamically created web applications. Using Java and an IoC framework, discover the various functionalities this server offers and how each interaction reflects a modern approach to web application development. Start your experience by exploring our interactive tools!</p>
+            </div>
+
+            <!-- Carrusel ubicado en el lado derecho -->
+            <div class="col-md-6">
+                <div id="carouselExampleRide" class="carousel slide" data-bs-ride="true">
+                    <div class="carousel-inner">
+                      <div class="carousel-item active">
+                        <img src="image/Pc.jpg" class="d-block w-100" alt="...">
+                      </div>
+                      <div class="carousel-item">
+                        <img src="image/Cloude.png" class="d-block w-100" alt="...">
+                      </div>
+                      <div class="carousel-item">
+                        <img src="image/Cloude.png" class="d-block w-100" alt="...">
+                      </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleRide" data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleRide" data-bs-slide="next">
+                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <div class="row">
+            <!-- Current Time Service -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="text">Current Time Service</h5>
+                        <p class="custom-text">Click the button to fetch the current time.</p>
+                        <button class="btn btn-primary" onclick="loadCurrentTime()">Get Current Time</button>
+                        <div id="timeResult" class="result-text mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hello Service -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="text">Hello Service</h5>
+                        <p class="custom-text">Click the button to get a personalized greeting.</p>
+                        <input type="text" id="textInputHello" class="form-control mb-2" placeholder="Type your name here...">
+                        <button class="btn btn-success" onclick="loadHello()">Get Greeting</button>
+                        <div id="helloResult" class="result-text mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pi Service -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="text">Pi Service</h5>
+                        <p class="custom-text">Click the button to get the value of π with a specified number of decimals.</p>
+                        <input type="number" id="textInputPi" class="form-control mb-2" placeholder="Decimals..." min="0">
+                        <button class="btn btn-info" onclick="loadPi()">Get Pi Value</button>
+                        <div id="piResult" class="result-text mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Random Number Service -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="text">Random Number Service</h5>
+                        <p class="custom-text">Click the button to get a random number between the specified range.</p>
+                        <input type="number" id="minValue" class="form-control mb-2" placeholder="Min value...">
+                        <input type="number" id="maxValue" class="form-control mb-2" placeholder="Max value...">
+                        <button class="btn btn-warning" onclick="loadRandom()">Get Random Number</button>
+                        <div id="randomResult" class="result-text mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
