@@ -32,11 +32,11 @@ public class SimpleWebServer {
     }
 
     private static void loadServices() throws ClassNotFoundException, IOException {
-    File servicesDir = new File("src/main/java/edu/escuelaing/arep/Services");
+    File servicesDir = new File("src/main/java/co/edu/escuelaing/Services");
     if (servicesDir.exists() && servicesDir.isDirectory()) {
         for (File file : servicesDir.listFiles()) {
             if (file.getName().endsWith(".java")) {
-                String className = "edu.escuelaing.arep.Services." + file.getName().replace(".java", "");
+                String className = "co.edu.escuelaing.Services." + file.getName().replace(".java", "");
                 Class<?> serviceClass = Class.forName(className);
                 
                 if (serviceClass.isAnnotationPresent(RestController.class)) {

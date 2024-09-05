@@ -29,13 +29,21 @@ function loadPi() {
     xhttp.send();
 }
 
-function loadRandom() {
-    let min = document.getElementById("minValue").value || 0;
-    let max = document.getElementById("maxValue").value || 1;
-    const xhttp = new XMLHttpRequest();
-    xhttp.onload = function() {
-        document.getElementById("randomResult").innerHTML = this.responseText;
+function loadSum() {
+    const minValue = parseInt(document.getElementById('minValue').value, 10);
+    const maxValue = parseInt(document.getElementById('maxValue').value, 10);
+
+    if (!isNaN(minValue) && !isNaN(maxValue)) {
+        fetch(`/app/random?min=${minValue}&max=${maxValue}`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sumResult').innerText = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('sumResult').innerText = 'An error occurred.';
+            });
+    } else {
+        document.getElementById('sumResult').innerText = 'Please enter valid numbers.';
     }
-    xhttp.open("GET", "/app/random?min=" + min + "&max=" + max);
-    xhttp.send();
 }
