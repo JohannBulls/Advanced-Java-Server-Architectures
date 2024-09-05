@@ -12,12 +12,24 @@ import co.edu.escuelaing.Annotations.GetMapping;
 import co.edu.escuelaing.Annotations.RequestParam;
 import co.edu.escuelaing.Annotations.RestController;
 
+/**
+ * A simple web server implementation that handles HTTP requests and serves files or dynamic content.
+ * This server supports both static file serving and dynamic request handling using annotated service methods.
+ */
 public class SimpleWebServer {
     private static final int PORT = 8080;
     public static final String WEB_ROOT = "src/main/java/co/edu/escuelaing/resources/";
     public static Map<String, Method> services = new HashMap<>();
     private static boolean running = true;
 
+    /**
+     * The entry point for starting the web server.
+     * It initializes services, sets up a thread pool for handling client connections, and starts listening for incoming requests.
+     *
+     * @param args Command line arguments (not used).
+     * @throws IOException If an I/O error occurs when creating the server socket.
+     * @throws ClassNotFoundException If a service class cannot be found.
+     */
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         loadServices();
         ExecutorService threadPool = Executors.newFixedThreadPool(10);
@@ -31,36 +43,54 @@ public class SimpleWebServer {
         threadPool.shutdown();
     }
 
+    /**
+     * Loads service classes from the specified directory and registers methods annotated with {@link RestController} and {@link GetMapping}.
+     *
+     * @throws ClassNotFoundException If a service class cannot be found.
+     * @throws IOException If an I/O error occurs while reading service classes.
+     */
     private static void loadServices() throws ClassNotFoundException, IOException {
-    File servicesDir = new File("src/main/java/co/edu/escuelaing/Services");
-    if (servicesDir.exists() && servicesDir.isDirectory()) {
-        for (File file : servicesDir.listFiles()) {
-            if (file.getName().endsWith(".java")) {
-                String className = "co.edu.escuelaing.Services." + file.getName().replace(".java", "");
-                Class<?> serviceClass = Class.forName(className);
-                
-                if (serviceClass.isAnnotationPresent(RestController.class)) {
-                    Method[] methods = serviceClass.getDeclaredMethods();
-                    for (Method method : methods) {
-                        if (method.isAnnotationPresent(GetMapping.class)) {
-                            String path = method.getAnnotation(GetMapping.class).value();
-                            services.put(path, method);
+        File servicesDir = new File("src/main/java/co/edu/escuelaing/Services");
+        if (servicesDir.exists() && servicesDir.isDirectory()) {
+            for (File file : servicesDir.listFiles()) {
+                if (file.getName().endsWith(".java")) {
+                    String className = "co.edu.escuelaing.Services." + file.getName().replace(".java", "");
+                    Class<?> serviceClass = Class.forName(className);
+
+                    if (serviceClass.isAnnotationPresent(RestController.class)) {
+                        Method[] methods = serviceClass.getDeclaredMethods();
+                        for (Method method : methods) {
+                            if (method.isAnnotationPresent(GetMapping.class)) {
+                                String path = method.getAnnotation(GetMapping.class).value();
+                                services.put(path, method);
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
 
+    /**
+     * Stops the web server by setting the running flag to false.
+     */
     public static void stop() {
         running = false;
     }
 }
 
+/**
+ * Handles client requests by reading input, processing it, and sending appropriate responses.
+ * This class processes HTTP GET and POST requests, handles static files, and invokes service methods.
+ */
 class ClientHandler implements Runnable {
     private Socket clientSocket;
 
+    /**
+     * Constructs a ClientHandler for a given client socket.
+     *
+     * @param socket The client socket to handle.
+     */
     public ClientHandler(Socket socket) {
         this.clientSocket = socket;
     }
@@ -101,6 +131,12 @@ class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Prints the request line and headers to the console.
+     *
+     * @param requestLine The request line from the client.
+     * @param in The BufferedReader for reading request headers.
+     */
     private void printRequestLine(String requestLine, BufferedReader in) {
         System.out.println("Request line: " + requestLine);
         String inputLine;
@@ -112,8 +148,16 @@ class ClientHandler implements Runnable {
             e.printStackTrace();
         }
     }
-    
 
+    /**
+     * Handles HTTP GET requests for static files.
+     * Responds with the file content if it exists or a 404 Not Found error if the file does not exist.
+     *
+     * @param fileRequested The requested file path.
+     * @param out The PrintWriter for sending the response headers.
+     * @param dataOut The BufferedOutputStream for sending the file data.
+     * @throws IOException If an I/O error occurs while reading the file or sending the response.
+     */
     private void handleGetRequest(String fileRequested, PrintWriter out, BufferedOutputStream dataOut)
             throws IOException {
         File file = new File(SimpleWebServer.WEB_ROOT, fileRequested);
@@ -139,6 +183,14 @@ class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Handles HTTP POST requests by reading the payload and sending a response with the received data.
+     *
+     * @param fileRequested The requested file path (not used in this implementation).
+     * @param out The PrintWriter for sending the response headers.
+     * @param dataOut The BufferedOutputStream for sending the response body.
+     * @throws IOException If an I/O error occurs while reading the request body or sending the response.
+     */
     private void handlePostRequest(String fileRequested, PrintWriter out, BufferedOutputStream dataOut)
             throws IOException {
         StringBuilder payload = new StringBuilder();
@@ -158,15 +210,23 @@ class ClientHandler implements Runnable {
         out.flush();
     }
 
+    /**
+     * Handles requests to dynamic endpoints (starting with "/app").
+     * Invokes the appropriate service method based on the request path and query parameters.
+     *
+     * @param method The HTTP method (e.g., GET).
+     * @param fileRequested The requested path, including query parameters.
+     * @param out The PrintWriter for sending the response headers and body.
+     */
     private void handleAppRequest(String method, String fileRequested, PrintWriter out) {
         out.println("HTTP/1.1 200 OK");
         out.println("Content-type: text/html");
         out.println();
-    
+
         String[] pathAndQuery = fileRequested.substring(fileRequested.indexOf("/app/") + 4).split("\\?");
         String path = pathAndQuery[0];
         String query = pathAndQuery.length > 1 ? pathAndQuery[1] : "";
-    
+
         Method serviceMethod = SimpleWebServer.services.get(path);
         if (serviceMethod != null) {
             try {
@@ -174,14 +234,14 @@ class ClientHandler implements Runnable {
                 Object[] parameters = new Object[serviceMethod.getParameterCount()];
                 Class<?>[] parameterTypes = serviceMethod.getParameterTypes();
                 Annotation[][] annotations = serviceMethod.getParameterAnnotations();
-                
+
                 for (int i = 0; i < annotations.length; i++) {
                     for (Annotation annotation : annotations[i]) {
                         if (annotation instanceof RequestParam) {
                             RequestParam requestParam = (RequestParam) annotation;
                             String paramName = requestParam.value();
                             String paramValue = queryParams.get(paramName);
-    
+
                             if (paramValue == null || paramValue.isEmpty()) {
                                 parameters[i] = convertToType(parameterTypes[i], requestParam.defaultValue());
                             } else {
@@ -192,7 +252,7 @@ class ClientHandler implements Runnable {
                         }
                     }
                 }
-    
+
                 String response = (String) serviceMethod.invoke(null, parameters);
                 out.println(response);
             } catch (Exception e) {
@@ -202,11 +262,16 @@ class ClientHandler implements Runnable {
         } else {
             out.println("<html><body><h1>Service Not Found</h1></body></html>");
         }
-    
+
         out.flush();
     }
-    
 
+    /**
+     * Parses query parameters from a query string.
+     *
+     * @param query The query string.
+     * @return A map of query parameter names and values.
+     */
     private Map<String, String> parseQueryParams(String query) {
         Map<String, String> queryParams = new HashMap<>();
         if (query != null && !query.isEmpty()) {
@@ -220,7 +285,14 @@ class ClientHandler implements Runnable {
         }
         return queryParams;
     }
-    
+
+    /**
+     * Converts a string value to the specified type.
+     *
+     * @param type The target type.
+     * @param value The string value to convert.
+     * @return The converted value.
+     */
     private Object convertToType(Class<?> type, String value) {
         if (type == int.class || type == Integer.class) {
             return Integer.parseInt(value);
@@ -236,8 +308,13 @@ class ClientHandler implements Runnable {
             return value; 
         }
     }
-    
 
+    /**
+     * Determines the content type based on the file extension.
+     *
+     * @param fileRequested The requested file path.
+     * @return The MIME type of the file.
+     */
     private String getContentType(String fileRequested) {
         if (fileRequested.endsWith(".html"))
             return "text/html";
@@ -252,6 +329,14 @@ class ClientHandler implements Runnable {
         return "text/plain";
     }
 
+    /**
+     * Reads file data from the specified file.
+     *
+     * @param file The file to read.
+     * @param fileLength The length of the file.
+     * @return A byte array containing the file data.
+     * @throws IOException If an I/O error occurs while reading the file.
+     */
     private byte[] readFileData(File file, int fileLength) throws IOException {
         FileInputStream fileIn = null;
         byte[] fileData = new byte[fileLength];
